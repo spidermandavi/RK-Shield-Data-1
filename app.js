@@ -116,13 +116,15 @@ function calculateStats(games, tournamentId) {
     initPlayer(
       players,
       white.user.name,
-      white.rating
+      white.rating,
+      white.provisional
     );
 
     initPlayer(
       players,
       black.user.name,
-      black.rating
+      black.rating,
+      black.provisional
     );
 
     players[white.user.name].games++;
@@ -228,30 +230,34 @@ function calculateStats(games, tournamentId) {
   });
 
   const playerArray = Object.entries(players)
-    .map(([name, data]) => {
+  .map(([name, data]) => {
 
-      const gamesPlayed = data.games;
+    const gamesPlayed = data.games;
 
-      return {
-        name,
-        ...data,
+    return {
+      name,
+      ...data,
 
-        winRate:
-          gamesPlayed >= 10
-            ? (data.wins / gamesPlayed) * 100
-            : null,
+      winRate:
+        gamesPlayed >= 10
+          ? (data.wins / gamesPlayed) * 100
+          : null,
 
-        lossRate:
-          gamesPlayed >= 10
-            ? (data.losses / gamesPlayed) * 100
-            : null,
+      lossRate:
+        gamesPlayed >= 10
+          ? (data.losses / gamesPlayed) * 100
+          : null,
 
-        ratingChange:
-          data.endRating - data.startRating
-      };
-    });
+      ratingChange:
+        data.endRating - data.startRating
+    };
+  });
 
-  const totalPlayers = playerArray.length;
+const establishedPlayers = playerArray.filter(
+  p => !p.provisional
+);
+
+const totalPlayers = playerArray.length;
 
   const averageRating = Math.round(
     playerArray.reduce(
@@ -307,11 +313,11 @@ function calculateStats(games, tournamentId) {
     },
 
     topGainers:
-      sortDesc(playerArray, "ratingChange")
+      sortDesc(establishedPlayers, "ratingChange")
         .slice(0, 3),
 
     topLosers:
-      sortAsc(playerArray, "ratingChange")
+      sortAsc(establishedPlayers, "ratingChange")
         .slice(0, 3),
 
     topWinRates:
@@ -376,7 +382,7 @@ function calculateStats(games, tournamentId) {
   };
 }
 
-function initPlayer(players, name, rating) {
+function initPlayer(players, name, rating, provisional) {
 
   if (!players[name]) {
 
@@ -385,6 +391,8 @@ function initPlayer(players, name, rating) {
       startRating: rating,
       endRating: rating,
       performance: rating,
+
+      provisional,
 
       wins: 0,
       losses: 0,
