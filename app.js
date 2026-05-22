@@ -400,11 +400,11 @@ function initPlayer(players, name, rating) {
 function updateRatings(players, white, black) {
 
   players[white.user.name].endRating =
-    white.rating;
+  white.rating + (white.ratingDiff || 0);
 
-  players[black.user.name].endRating =
-    black.rating;
-
+players[black.user.name].endRating =
+  black.rating + (black.ratingDiff || 0);
+  
   if (white.ratingDiff !== undefined) {
     players[white.user.name].performance +=
       white.ratingDiff;
